@@ -1,0 +1,22 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 4444",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@types/node": "^18",
+    "nuxt": "^3.5.2",
+    "sass": "^1.62.1"
+  },
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "fast-folder-size": "^2.2.0",
+    "imagemagick": "^0.1.3",
+    "sharp": "^0.32.1"
+  }
+}
