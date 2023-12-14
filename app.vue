@@ -40,6 +40,11 @@
               @input="updateQualityLevel" @change="updatePreviewImage">
             <span>{{ quality }}</span>
           </div>
+
+          <div class="background">
+            <label for="qualityLevel">Background : </label>
+            <input type="text" id="background" name="background" ref="background" value="" @input="updatePreviewImage">
+          </div>
         </details>
 
         <details>
@@ -154,6 +159,7 @@ const qualityLevel = ref(null)
 const quality = ref(80)
 const previewImage = ref(null)
 const trimColor = ref(null)
+const background = ref("white")
 const trimThreshold = ref(null)
 const canvas = ref(null)
 const status = ref(null)
@@ -168,13 +174,15 @@ const templates = [
     format: "jpg",
     quality: 50,
     width: 2000,
-    height: 2000
+    height: 2000,
+    background: "white"
   },
   {
     label: "Web/Source",
     quality: 50,
     width: 2000,
-    height: 2000
+    height: 2000,
+    background: "white"
   },
   {
     label: "Fit content",
@@ -183,29 +191,37 @@ const templates = [
     icon: "crop"
   }
 ]
+const clear = async (folder="")=> {
+  return  await $fetch("/api/convert/delete", {
+    method: "POST",
+    body: {
+      uuid: uuid.value + folder
+    }
+  })
+}
+const upload = async (newFiles) => {
+  
 
-const upload = async () => {
-  uploadedFiles.value = []
+  if(newFiles.length == files.length) {
+    uploadedFiles.value = []
   selectedPreviewImage.value = 0
   uploadedFileSize.value = 0
   convertedFileSize.value = 0
-  await $fetch("/api/convert/delete", {
-    method: "POST",
-    body: {
-      uuid: uuid.value
-    }
-  })
-  for (let file of files) {
+    await clear()
+  }
+  
+  for (let file of newFiles) {
     file.src = await uploadFile(file)
     uploadedFiles.value.push(file)
     uploadedFileSize.value += file.size
   }
+  
   updatePreviewImage()
 }
 
-const filesChange = (fs) => {
-  files = fs
-  upload()
+const filesChange = (inputFiles, newFiles) => {
+  files = inputFiles
+  upload(newFiles)
 }
 
 const getFileContent = async (file) => {
@@ -235,6 +251,7 @@ const uploadFile = async (file) => {
 
 const downloadArchive = async () => {
   convertedFileSize.value = 0
+  await clear("/convert")
   await convert()
   const response = await $fetch("/api/convert/archive", {
     method: "POST",
@@ -267,6 +284,7 @@ const convertFile = async (file) => {
   const format = !formatSelector.value || formatSelector.value.value == "source" ? file.type.replace('image/', "") : formatSelector.value.value
   const fit = fitSelector.value ? fitSelector.value.value : null
   const _trimColor = trimColor.value ? trimColor.value.value : null
+  const _background = background.value ? background.value.value : null
   const _trimThreshold = trimThreshold.value ? trimThreshold.value.value : null
   return await $fetch("/api/convert/convert", {
     method: "POST",
@@ -279,7 +297,8 @@ const convertFile = async (file) => {
       trimThreshold: parseInt(_trimThreshold),
       format,
       fit,
-      quality: quality.value
+      quality: quality.value,
+      background: _background
     }
   })
 
@@ -326,6 +345,7 @@ const selectTemplate = async (template)=>{
   maxWidth.value.value = template.width || null
   maxHeight.value.value = template.height || null
   trimColor.value.value = template.trimColor || null
+  background.value.value = template.background || null
   trimThreshold.value.value = template.trimThreshold || null
   await updatePreviewImage()
 }

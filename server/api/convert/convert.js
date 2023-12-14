@@ -14,6 +14,8 @@ export default defineEventHandler(async(event)=>{
 
     const factory = await sharp(path.resolve(srcPath))
 
+    
+    
     /* Resize */
     const resizeOptions = {
         withoutEnlargement: true
@@ -22,6 +24,9 @@ export default defineEventHandler(async(event)=>{
     if(body.height) resizeOptions.height = body.height
     resizeOptions.fit = body.fit
     await factory.resize(resizeOptions)
+    
+    /* Background */
+    if(body.background) factory.flatten({background:  body.background})
 
     /* Format */
     await factory.toFormat(body.format, { quality: body.quality })
