@@ -9,6 +9,7 @@ dist
 .DS_Store
 .fleet
 .idea
+.vscode
 
 public/tmp/*
 public/archive.zip
